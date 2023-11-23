@@ -1,17 +1,28 @@
-import { Canister, query, text, update, Void } from 'azle';
+import {Canister, query, text, update, nat64, Principal, Vec, Opt, None,} from 'azle'
 
-// This is a global variable that is stored on the heap
-let message = '';
+type Bid = {
+    bidder: Principal;
+    amount: nat64;
+    item: text;
+}
+//Global variables to store auction state
+
+let currentBid: Opt<Bid> = None;
+let auctionEndTime: nat64 = 0;
+let auctionHistory: Vec<Bid> | null = null;
 
 export default Canister({
-    // Query calls complete quickly because they do not go through consensus
-    getMessage: query([], text, () => {
-        return message;
+    // Query functions to retrieve auction state
+    getCurrentBid: query([], text, () => {
+        if (currentBid) {
+            return JSON.stringify(currentBid);
+        
+        } else {
+            return '';
+        }
     }),
-    // Update calls take a few seconds to complete
-    // This is because they persist state changes and go through consensus
-    setMessage: update([text], Void, (newMessage) => {
-        message = newMessage; // This change will be persisted
-    })
-});
 
+    getAuctionEndTime: query([], text, () => {
+        return auctionEndTime.toString();
+    }),
+})
