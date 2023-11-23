@@ -13,6 +13,8 @@ let auctionHistory: Vec<Bid> | null = null;
 
 export default Canister({
     // Query functions to retrieve auction state
+
+    // function to get the current bid made
     getCurrentBid: query([], text, () => {
         if (currentBid) {
             return JSON.stringify(currentBid);
@@ -22,7 +24,18 @@ export default Canister({
         }
     }),
 
+    // function to get the auction end time
     getAuctionEndTime: query([], text, () => {
         return auctionEndTime.toString();
+    }),
+
+    // function to get the auction history
+    getAuctionHistory: query([], text, () => {
+        try {
+            return JSON.stringify(auctionHistory);
+        } catch (error) {
+            console.error('Error getting auction history:', error);
+            return '';
+        }
     }),
 })
