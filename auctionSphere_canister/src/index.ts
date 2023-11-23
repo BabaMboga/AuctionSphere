@@ -1,14 +1,14 @@
-import {Canister, query, text, update, nat64, Principal, Vec, Opt, None,} from 'azle'
+import {Canister, query, text, update, Principal, Vec, Opt, None, float64,} from 'azle'
 
 type Bid = {
     bidder: Principal;
-    amount: nat64;
+    amount: float64;
     item: text;
 }
 //Global variables to store auction state
 
 let currentBid: Opt<Bid> = None;
-let auctionEndTime: nat64 = 0;
+let auctionEndTime: float64 = 0;
 let auctionHistory: Vec<Bid> | null = null;
 
 export default Canister({
