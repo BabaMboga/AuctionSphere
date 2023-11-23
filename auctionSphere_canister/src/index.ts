@@ -1,4 +1,4 @@
-import {Canister, query, text, update, Principal, Vec, Opt, None, float64,} from 'azle'
+import {Canister, query, text, update, Principal, Vec, Opt, None, float64, Void} from 'azle'
 
 type Bid = {
     bidder: Principal;
@@ -36,6 +36,51 @@ export default Canister({
         } catch (error) {
             console.error('Error getting auction history:', error);
             return '';
+        }
+    }),
+
+    // Update functions to modify auction state
+    placeBid: update([text, float64], Void, (bidder, amount) => {
+        // Validate bid and update auction state if valid
+        if (validateBid(bidder, amount)) {
+            currentBid = {bidder, amount};
+            if (!auctionHistory) {
+                auctionHistory = new Vec<Bid>;
+            }
+            auctionHistory?.push(currentBid);
+        }
+    }),
+
+    endAuction: update([], Void, () => {
+        //end the auction and perform any necessary actions
+    }),
+
+    cancelAuction: update([], Void, () => {
+        //Cancel the auction if hasnt ended yet
+        if (block_timestamp() < auctionEndTime) {
+            currentBid = null;
+            auctionEndTime = 0;
+        }
+    }),
+
+    makeBid: update([text, float64], Void, (bidder, amount) => {
+        //place a bid and keep updating until it becomes the highest bid
+        placeBid(bidder, amount);
+
+        while (block_timestamp() < auctionEndTime) {
+            const currentBid = getCurrentBid();
+            if (!current || currentBid.amount < amount) {
+                placeBid(bidder, amount);
+            } else {
+                break;
+            }
+        }
+    }),
+
+    extendAuction: update([float64], Void, (newEndTime) => {
+        // Extend the auction if it hasn't ended yet
+        if (block_timestamp() < auctionEndTime) {
+            auctionEndTime = newEndTime;
         }
     }),
 })
