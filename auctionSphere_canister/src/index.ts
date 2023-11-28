@@ -38,7 +38,7 @@ export default Canister({
     }),
 
     // get the current block time stamp 
-    blockTimeStamp: query([], Time, () => {
+    blockTimeStamp: query([], Void, () => {
         return Date.now();
     }),
 
@@ -53,4 +53,32 @@ export default Canister({
         const auction = auctions.get(itemId);
         return auction? auction.endTime : 0;
     }),
+
+    cancelAuction: update([text], Void. (itemId) => {
+        const auction = auctions.get(itemId);
+        if (auction) {
+            auction.canceled = true;
+            auctions.set(itemId, auction);
+        }
+    }),
+    
+    extendAuction: update([text, int64], Void, (itemId, newEndTime) => {
+        const auction = auctions.get(itemId);
+        if (auction && !auction.canceled && Date.now() < auction.endTime) {
+            auction.endTime = newEndTime;
+            auctions.set(itemId, auction);
+
+        }
+    }),
+
+    createAuction: update([text,int64], Void, (itemId, startTime,endTime, startingBid, caller) => {
+        auctions.set(itemId, {
+            seller: caller,
+            startTime: startTime,
+            endTime: endTime,
+            currentBid: startingBid,
+            highestBidder: Principal.fromText(''),
+            canceled: false
+        });
+    })
 })
