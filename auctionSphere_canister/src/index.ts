@@ -18,7 +18,7 @@ let auctions = new Map<text, auctionItem>();
 
 export default Canister({
     // function to place a bid on an item
-    placeBid: update([text, int64, Principal], async (itemId, bidAmount, caller) => {
+    placeBid: update([text, int64, Principal], Void, async (itemId, bidAmount, caller) => {
         const verifiedCaller = await ic.caller();
         if (verifiedCaller.toText() === caller.toText()) {
             const auction = auctions.get(itemId);
