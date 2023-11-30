@@ -18,7 +18,7 @@ let auctions = new Map<text, auctionItem>();
 
 export default Canister({
     // function to place a bid on an item
-    placeBid: update([text, int64], async (itemId, bidAmount, caller) => {
+    placeBid: update([text, int64, Principal], async (itemId, bidAmount, caller) => {
         const verifiedCaller = await ic.caller();
         if (verifiedCaller.toText() === caller.toText()) {
             const auction = auctions.get(itemId);
@@ -45,19 +45,19 @@ export default Canister({
 
     // get the current block time stamp 
     blockTimeStamp: query([], int64, () => {
-        return Date.now();
+        return BigInt(Date.now());
     }),
 
     //get the current bid for an item
     getCurrentBid: query([text], int64, (itemId) => {
         const auction = auctions.get(itemId);
-        return auction ? auction.currentBid : 0;
+        return auction ? auction.currentBid : BigInt(0);
     }),
 
     // function to get the endtime of an auction 
     getAuctionEndTime: query([text], int64, (itemId) => {
         const auction = auctions.get(itemId);
-        return auction? auction.endTime : 0;
+        return auction? auction.endTime : BigInt(0);
     }),
 
     // function to get cancel the auction 
@@ -83,8 +83,11 @@ export default Canister({
         throw new Error("Auction not found, canceled, or already ended");
     }),
 
-    createAuction: update([text,int64], Void, (itemId, startTime, endTime, startingBid, caller) => {
+    //fucntion to create an auction
+    createAuction: update([text,text,int64, int64, int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, caller) => {
         auctions.set(itemId, {
+            itemId: itemId,
+            itemName: itemName,
             seller: caller,
             startTime: startTime,
             endTime: endTime,
@@ -92,5 +95,6 @@ export default Canister({
             highestBidder: Principal.fromText(''),
             canceled: false
         });
+        return;
     })
-})
+});
