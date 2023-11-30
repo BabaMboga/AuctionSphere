@@ -27,7 +27,9 @@ export default Canister({
                 auction.highestBidder = caller;
                 auctions.set(itemId, auction);
             }
+            return;
         }
+        throw new Error("Caller verification failed");
     }),
 
     // function that ends a particular auction for an item 
@@ -35,11 +37,14 @@ export default Canister({
         const auction = auctions.get(itemId);
         if (auction && !auction.canceled && Date.now() >= auction.endTime ){
             // transfer the highest bid to the seller 
+            // add logic here
+            return;
         }
+        throw new Error("Auction not found or not yet ended");
     }),
 
     // get the current block time stamp 
-    blockTimeStamp: query([], Void, () => {
+    blockTimeStamp: query([], int64, () => {
         return Date.now();
     }),
 
@@ -55,24 +60,30 @@ export default Canister({
         return auction? auction.endTime : 0;
     }),
 
+    // function to get cancel the auction 
     cancelAuction: update([text], Void, (itemId) => {
         const auction = auctions.get(itemId);
         if (auction) {
             auction.canceled = true;
             auctions.set(itemId, auction);
+            return;
         }
+        throw new Error("Auction not found");
     }),
     
+    // function to extend the auction
     extendAuction: update([text, int64], Void, (itemId, newEndTime) => {
         const auction = auctions.get(itemId);
         if (auction && !auction.canceled && Date.now() < auction.endTime) {
             auction.endTime = newEndTime;
             auctions.set(itemId, auction);
+            return;
 
         }
+        throw new Error("Auction not found, canceled, or already ended");
     }),
 
-    createAuction: update([text,int64], Void, (itemId, startTime,endTime, startingBid, caller) => {
+    createAuction: update([text,int64], Void, (itemId, startTime, endTime, startingBid, caller) => {
         auctions.set(itemId, {
             seller: caller,
             startTime: startTime,
