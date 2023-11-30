@@ -1,23 +1,24 @@
-import {Canister, query, update, int64, text, Principal, bool, Record, Void,ic} from 'azle'
+import {Canister, query, update, int64, text, Principal, bool, Void,ic} from 'azle'
 
 // Define global auction item structure
 
-const auctionItem = Record({
+type auctionItem = {
     itemId: text,
+    itemName: text,
     seller: Principal,
     startTime: int64,
     endTime: int64,
     currentBid: int64,
     highestBidder: Principal,
     canceled: bool,
-});
+};
 
 // create a map to store auction items
-let auctions = new Map<text, typeof auctionItem>();
+let auctions = new Map<text, auctionItem>();
 
 export default Canister({
     // function to place a bid on an item
-    placeBid: update([text, int64], Void, async (itemId, bidAmount, caller) => {
+    placeBid: update([text, int64], async (itemId, bidAmount, caller) => {
         const verifiedCaller = await ic.caller();
         if (verifiedCaller.toText() === caller.toText()) {
             const auction = auctions.get(itemId);
@@ -54,7 +55,7 @@ export default Canister({
         return auction? auction.endTime : 0;
     }),
 
-    cancelAuction: update([text], Void. (itemId) => {
+    cancelAuction: update([text], Void, (itemId) => {
         const auction = auctions.get(itemId);
         if (auction) {
             auction.canceled = true;
