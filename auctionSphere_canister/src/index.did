@@ -1,0 +1,10 @@
+service: () -> {
+    blockTimeStamp: () -> (int64) query;
+    cancelAuction: (text) -> ();
+    createAuction: (text, text, int64, int64, int64, int64, principal) -> ();
+    endAuction: (text) -> ();
+    extendAuction: (text, int64) -> ();
+    getAuctionEndTime: (text) -> (int64) query;
+    getCurrentBid: (text) -> (int64) query;
+    placeBid: (text, int64, principal) -> ();
+}
