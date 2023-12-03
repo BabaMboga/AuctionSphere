@@ -43,6 +43,8 @@ export default Canister({
 
             } else {
                 // Handle auction not meeting reserve price
+                auction.canceled = true;
+                auctions.set(itemId,auction)
             }
             return;
             
