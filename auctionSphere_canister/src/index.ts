@@ -23,7 +23,7 @@ export default Canister({
         const verifiedCaller = await ic.caller();
         if (verifiedCaller.toText() === caller.toText()) {
             const auction = auctions.get(itemId);
-            if (auction && !auction.canceled && Date.now() / 1000 < auction.endTime && bidAmount > auction.currentBid) {
+            if (auction && !auction.canceled && Date.now() / 1000 < auction.endTime && bidAmount > auction.currentBid && bidAmount >= auction.reservedPrice) {
                 auction.currentBid = bidAmount;
                 auction.highestBidder = caller;
                 auctions.set(itemId, auction);
@@ -37,10 +37,17 @@ export default Canister({
     endAuction: update([text], Void,(itemId) => {
         const auction = auctions.get(itemId);
         if (auction && !auction.canceled && Date.now() >= auction.endTime ){
-            // transfer the highest bid to the seller 
-            // add logic here
+            if (auction.currentBid >= auction.reservedPrice) {
+                // transfer the highest bid to the seller 
+                // add logic here
+
+            } else {
+                // Handle auction not meeting reserve price
+            }
             return;
+            
         }
+            
         throw new Error("Auction not found or not yet ended");
     }),
 
