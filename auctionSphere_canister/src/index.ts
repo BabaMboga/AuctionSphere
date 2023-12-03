@@ -93,6 +93,15 @@ export default Canister({
         throw new Error("Auction not found, canceled, or already ended");
     }),
 
+    // function to search for an auction item by itemID
+    searchAuctionItem: query([text], {itemId:text, ...auctionItem }, (itemId:text) => {
+        const auction = auctions.get(itemId);
+        if (auction) {
+            return auction;
+        }
+        throw new Error("Auction item not found");
+    }),
+
     //fucntion to create an auction
     createAuction: update([text,text,int64, int64, int64,int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, reservedPrice, caller) => {
         auctions.set(itemId, {
