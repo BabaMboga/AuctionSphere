@@ -10,6 +10,7 @@ type auctionItem = {
     endTime: int64,
     currentBid: int64,
     highestBidder: Principal,
+    reservedPrice: int64,
     canceled: bool,
 };
 
@@ -84,7 +85,7 @@ export default Canister({
     }),
 
     //fucntion to create an auction
-    createAuction: update([text,text,int64, int64, int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, caller) => {
+    createAuction: update([text,text,int64, int64, int64,int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, reservedPrice, caller) => {
         auctions.set(itemId, {
             itemId: itemId,
             itemName: itemName,
@@ -93,6 +94,7 @@ export default Canister({
             endTime: endTime,
             currentBid: startingBid,
             highestBidder: Principal.fromText(''),
+            reservedPrice: reservedPrice,
             canceled: false
         });
         return;
