@@ -21,5 +21,25 @@ AuctionSphere is a decentralized auction platform implemented in Azle, allowing 
 8. Automated Bid History: View a detailed history of bids placed on each item,priving transparency and facilitating strategic bidding decisions.
 
 9. Cancellation Safeguards: In the event of unforseen circumstances, sellers can cancel auctions with appropriate safeguards, ensuring a fair and reliable auction platform.
+
+##Usage Description
+
+To use the Azle AuctionSphere, you need to have an Azle(DFINITY) account. Here's how to get started:
+
+- `placeBid(itemId: text, bidAmount: int64, caller: Principal): Void` : Allows users to place bids on auction items. Verifies the caller's identity and checks if the bid is valid before updating the auction details.
+
+- `endAuction(itemId: text): Void` : Concludes a specific auction, transferring the highest bid to the seller if the reserve price is met. Handles scenarios where the seserve pricee is not reached, canceling the auction.
+
+- `blockTimeStamp(): int64` : Returns the current block timestamp, providing a reference for the timing of various auction-related operations.
+
+- `getCurrentBid(itemId: text): int64` : Retrieves the current highest bid for a given auction item.
+
+- `getAuctionEndTime(itemId: text): int64` : Fetches the end time of a specific auction.
+
+- `cancelAuction(itemId: text): Void` : Allows the seller to cancel an auction, updating the auction status accordingly.
+
+- `extendAuction(itemId: text, newEndTime: int64): Void` : Extends the duraiton of an auction if certain conditions are met, providing flexibility in managing auction timelines.
+
+- `createAuction(itemId: text, itemName: text, startTime: int64, endTime: int64, startingBid: int64, reservedPrice: int64)`
     
 
