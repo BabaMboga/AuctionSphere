@@ -40,6 +40,52 @@ To use the Azle AuctionSphere, you need to have an Azle(DFINITY) account. Here's
 
 - `extendAuction(itemId: text, newEndTime: int64): Void` : Extends the duraiton of an auction if certain conditions are met, providing flexibility in managing auction timelines.
 
-- `createAuction(itemId: text, itemName: text, startTime: int64, endTime: int64, startingBid: int64, reservedPrice: int64)`
-    
+- `searchAuctionItem(itemId: text): auctionItem` : Searces for a specific auction item using its unique itemId. It Returns the details of the auction item, including the current bid, seller and auction status
 
+- `createAuction(itemId: text, itemName: text, startTime: int64, endTime: int64, startingBid: int64, reservedPrice: int64, caller: Principal) : Void` : Enables the creation of new auctions with specified parameters, initializing the auction structure and making it available for bidding.
+
+## Installation
+
+You can run your Azle AuctionSphere in your Azle environment or a development environment.
+
+    1. Environment Setup: Ensure you have an Azle environment set up and running.
+
+    2. Deployment: Deploy the Auctionsphere caister to your Azle environment.
+
+    3. Configuration: Update your system confgurations as needed.
+
+    4. Use the system: Access the system via a web browser and start managing your tasks.
+
+## Run Locally
+
+`dfx` is the tool you will use to interact with the IC locally and on mainnet. If you don't already have it installed:
+
+`npm run dfx_install`
+
+Next you will want to start a replica, which is a local instance of the IC that you can deploy your cannisters to:
+
+`dfx start --background`
+
+If you ever want to stop the replica:
+
+`dfx stop`
+
+Now you can deploy your canister locally:
+
+`npm install`
+`dfx deploy`
+
+## Contributing 
+
+We welcome contributions from the community to enhance the Azle Task Management System. If you want to contribute, please follow these steps:
+
+    1. Fork te repository to your own account.
+    2. Create a new branch for your feature or bug fix.
+    3. Make your changes and ensure all tests pass.
+    4. Submit a pull request for review.
+
+Thaank you for considering contributing to our project. Your contributions help make this system better for everyone.
+
+## License
+
+This projecr is licensed under the GNU License. Feel free to use, modify and distribute the code as per the terms of the license. Contributions are welcome! See `LICENSE` for more information.
