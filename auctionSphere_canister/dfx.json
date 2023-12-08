@@ -2,13 +2,11 @@
     "canisters": {
         "auctionSphere_canister": {
             "type": "custom",
-            "root":"src",
-            "main": "src/index.ts",
-            "candid": "src/index.did",
             "build": "npx azle auctionSphere_canister",
-            "wasm": ".azle/auctionSphere_canister/auctionSphere_canister.wasm",
-            "gzip": true
+            "root": "src",
+            "ts": "src/index.ts",
+            "candid": "src/index.did",
+            "wasm": ".azle/auctionSphere_canister/auctionSphere_canister.wasm.gz"
         }
     }
 }
-

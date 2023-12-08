@@ -1,10 +1,33 @@
-service: () -> {
-    blockTimeStamp: () -> (int64) query;
-    cancelAuction: (text) -> ();
-    createAuction: (text, text, int64, int64, int64, int64, principal) -> ();
-    endAuction: (text) -> ();
-    extendAuction: (text, int64) -> ();
-    getAuctionEndTime: (text) -> (int64) query;
-    getCurrentBid: (text) -> (int64) query;
-    placeBid: (text, int64, principal) -> ();
+type AuctionItem = record {
+  startTime : nat64;
+  itemId : text;
+  canceled : bool;
+  highestBidder : opt principal;
+  endTime : nat64;
+  createdAt : nat64;
+  seller : principal;
+  updatedAt : opt nat64;
+  itemName : text;
+  currentBid : nat64;
+  reservedPrice : nat64;
+};
+type AuctionItemPayload = record {
+  startTime : nat64;
+  highestBidder : opt principal;
+  endTime : nat64;
+  itemName : text;
+  currentBid : nat64;
+  reservedPrice : nat64;
+};
+type _AzleResult = variant { Ok : AuctionItem; Err : text };
+service : () -> {
+  blockTimeStamp : () -> (nat64) query;
+  cancelAuction : (text) -> (_AzleResult);
+  createAuction : (AuctionItemPayload) -> (_AzleResult);
+  endAuction : (text) -> (_AzleResult);
+  extendAuction : (text, nat64) -> (_AzleResult);
+  getAuctionEndTime : (text) -> (nat64) query;
+  getCurrentBid : (text) -> (nat64) query;
+  placeBid : (text, nat64, principal) -> (_AzleResult);
+  searchAuctionItem : (text) -> (_AzleResult) query;
 }
