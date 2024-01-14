@@ -1,24 +1,15 @@
-type AuctionItem = record {
-  startTime : nat64;
-  itemId : text;
-  canceled : bool;
-  highestBidder : opt principal;
-  endTime : nat64;
-  createdAt : nat64;
-  seller : principal;
-  updatedAt : opt nat64;
-  itemName : text;
-  currentBid : nat64;
-  reservedPrice : nat64;
-};
-type AuctionItemPayload = record {
-  startTime : nat64;
-  highestBidder : opt principal;
-  endTime : nat64;
-  itemName : text;
-  currentBid : nat64;
-  reservedPrice : nat64;
-};
+type auctionItem = record {
+    itemId: text,
+    itemName: text,
+    seller: Principal,
+    startTime: int64,
+    endTime: int64,
+    currentBid: int64,
+    highestBidder: Principal,
+    reservedPrice: int64,
+    canceled: bool,
+}
+
 type _AzleResult = variant { Ok : AuctionItem; Err : text };
 service : () -> {
   blockTimeStamp : () -> (nat64) query;

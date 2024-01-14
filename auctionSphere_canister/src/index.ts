@@ -98,13 +98,13 @@ export default Canister({
     }),
 
     // function to search for an auction item by itemID
-    searchAuctionItem: query([text], {  auctionItem: { itemId: text, itemName: text, seller: Principal, startTime: int64, endTime: int64, currentBid: int64, highestBidder: Principal, reservedPrice: int64, canceled: bool } }, (itemId: text) => {
+    searchAuctionItem: query([text], {itemId: text, auctionItem: { itemId: text, itemName: text, seller: Principal, startTime: int64, endTime: int64, currentBid: int64, highestBidder: Principal, reservedPrice: int64, canceled: bool } }, (itemId: text) => {
     const auction = auctions.get(itemId);
     if (auction) {
-        return { itemId: auction.itemId, auctionItem: auction };
+        return { itemId: auction.itemId, auctionItem: { itemId: auction.itemId, itemName: auction.itemName, seller: auction.seller, startTime: auction.startTime, endTime: auction.endTime, currentBid: auction.currentBid, highestBidder: auction.highestBidder, reservedPrice: auction.reservedPrice, canceled: auction.canceled } };
     }
     throw new Error("Auction item not found");
-}),
+    }),
 
     //fucntion to create an auction
     createAuction: update([text,text,int64, int64, int64,int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, reservedPrice, caller) => {
