@@ -1,124 +1,111 @@
-import {Canister, query, update, int64, text, Principal, bool, Void,ic} from 'azle'
+import { Canister, Principal, bool, int64, text, update, ic, query } from "azle"
 
-// Define global auction item structure
-
-type auctionItem = {
-    itemId: text,
-    itemName: text,
-    seller: Principal,
-    startTime: int64,
-    endTime: int64,
-    currentBid: int64,
-    highestBidder: Principal,
-    reservedPrice: int64,
-    canceled: bool,
+// global auction item structure
+type AuctionItem = {
+    itemId: text;
+    itemName: text;
+    description: text;
+    image: text;
+    startTime: int64;
+    highestBid: int64;
+    highestBidder: Principal;
+    canceled: bool;
 };
-
-type auctionItemResult = {
-  itemId: text,
-  auctionItem: auctionItem,
-};
-// create a map to store auction items
-let auctions = new Map<text, auctionItem>();
 
 export default Canister({
-    // function to place a bid on an item
-    placeBid: update([text, int64, Principal], Void, async (itemId, bidAmount, caller) => {
-        const verifiedCaller = await ic.caller();
-        if (verifiedCaller.toText() === caller.toText()) {
-            const auction = auctions.get(itemId);
-            if (auction && !auction.canceled && Date.now() / 1000 < auction.endTime && bidAmount > auction.currentBid && bidAmount >= auction.reservedPrice) {
-                auction.currentBid = bidAmount;
-                auction.highestBidder = caller;
-                auctions.set(itemId, auction);
-            }
-            return;
-        }
-        throw new Error("Caller verification failed");
-    }),
+    // Map to store auction items
+    let auctionItems = new Map<text, AuctionItem>();
 
-    // function that ends a particular auction for an item 
-    endAuction: update([text], Void,(itemId) => {
-        const auction = auctions.get(itemId);
-        if (auction && !auction.canceled && Date.now() >= auction.endTime ){
-            if (auction.currentBid >= auction.reservedPrice) {
-                // transfer the highest bid to the seller 
-                // add logic here
-
-            } else {
-                // Handle auction not meeting reserve price
-                auction.canceled = true;
-                auctions.set(itemId,auction)
-            }
-            return;
-            
-        }
-            
-        throw new Error("Auction not found or not yet ended");
-    }),
-
-    // get the current block time stamp 
-    blockTimeStamp: query([], int64, () => {
-        return BigInt(Date.now());
-    }),
-
-    //get the current bid for an item
-    getCurrentBid: query([text], int64, (itemId) => {
-        const auction = auctions.get(itemId);
-        return auction ? auction.currentBid : BigInt(0);
-    }),
-
-    // function to get the endtime of an auction 
-    getAuctionEndTime: query([text], int64, (itemId) => {
-        const auction = auctions.get(itemId);
-        return auction? auction.endTime : BigInt(0);
-    }),
-
-    // function to get cancel the auction 
-    cancelAuction: update([text], Void, (itemId) => {
-        const auction = auctions.get(itemId);
-        if (auction) {
-            auction.canceled = true;
-            auctions.set(itemId, auction);
-            return;
-        }
-        throw new Error("Auction not found");
-    }),
-    
-    // function to extend the auction
-    extendAuction: update([text, int64], Void, (itemId: text, newEndTime: int64) => {
-        const auction = auctions.get(itemId);
-        if (auction && !auction.canceled && Date.now() < auction.endTime) {
-            auction.endTime = newEndTime;
-            auctions.set(itemId, auction);
-            return;
-
-        }
-        throw new Error("Auction not found, canceled, or already ended");
-    }),
-
-    // function to search for an auction item by itemID
-    searchAuctionItem: query([text], {itemId: text, auctionItem: { itemId: text, itemName: text, seller: Principal, startTime: int64, endTime: int64, currentBid: int64, highestBidder: Principal, reservedPrice: int64, canceled: bool } }, (itemId: text) => {
-    const auction = auctions.get(itemId);
-    if (auction) {
-        return { itemId: auction.itemId, auctionItem: { itemId: auction.itemId, itemName: auction.itemName, seller: auction.seller, startTime: auction.startTime, endTime: auction.endTime, currentBid: auction.currentBid, highestBidder: auction.highestBidder, reservedPrice: auction.reservedPrice, canceled: auction.canceled } };
-    }
-    throw new Error("Auction item not found");
-    }),
-
-    //fucntion to create an auction
-    createAuction: update([text,text,int64, int64, int64,int64, Principal], Void, (itemId, itemName, startTime, endTime, startingBid, reservedPrice, caller) => {
-        auctions.set(itemId, {
+    // Function to create a new auction
+    createAuction: update([text, text, text, text, int64, int64, int64], Void, (itemId, itemName, description, image, startTime, endTime, startingPrice) => {
+        auctionItems.set(itemId, {
             itemId: itemId,
             itemName: itemName,
-            seller: caller,
+            description: description,
+            image: image,
             startTime: startTime,
             endTime: endTime,
-            currentBid: startingBid,
-            highestBidder: Principal.fromText(''),
-            reservedPrice: reservedPrice,
-            canceled: false
+            startingPrice: startingPrice,
+            highestBid: startingPrice,
+            higestBidder: ic.nothing<Principal>(),
+            canceled: false,
         });
-        return;
-    })
+
+    }),
+
+    //Function to place a bid on an auction
+    placeBid: update([text, int64], Void, aysnc (itemId, bidAmount) => {
+        const verifiedCaller = await.ic.caller();
+        const auctionItem = auctionItems.get(itemId);
+
+        if(!auctionItem) {
+            throw new Error ("Auction item not found");
+        }
+
+        const currentTime = Date.now() / 1000;
+        it (auctionItem.canceled || currentTime < auctionItem.startTime || currentTime >= actionItem.endTime) {
+            throw new Error("Invalid bidding period");
+        }
+
+        if (bidAmount <= auctionItem.highestBid) {
+            throw new Error("Bid amount must be higher than the current highest bid");
+
+        }
+
+        auctionItem.highestBid = bidAmount;
+        auctionItem.highestBidder = verifiedCaller;
+
+        auctionItems.set(itemId, auctionItem);
+
+    }),
+    // Fucntion to end an auction
+    endAuction: update([text], Void, (itemId) => {
+        const auctionItem = auctionItems.get(itemId);
+
+        if (!auctionItem){
+            throw new Error("Auction item not found");
+
+        }
+
+        const currentTime = Date.now() / 1000;
+
+        if (auctionItem.canceled || currentTime < auctionItem.endTime) {
+            throw new Error("Auction period not ended");
+        }
+    }),
+
+    // Function to cancel an auction
+    cancelAuction: update([text], Void, (itemId) => {
+        const auctionItem = auctionItems.get(itemId);
+
+        if (auctionItem) {
+            auctionItem.canceled = true;
+            auctionItems.set(itemId, auctionItem);
+        } else {
+            throw new Error("Auction item not found");
+        }
+    }),
+
+    //Query to get the details of an auction item
+    getAuctionDetails: query([text], Result<AuctionItem, text>, (itemId) => {
+        const auctionItem = auctionItems.get(itemId);
+
+        if (auctionItem) {
+            return auctionItem;
+
+        } else {
+            reutrn ic.err("Auction item not found");
+        }
+    }),
+
+    // Query to check if an auction item is canceled
+    isAuctionCanceled: query([text], Result<bool, tex>, (itemId) => {
+        const auctionItem = auctionItems.get(itemId);
+
+        if(auctionItem) {
+            return auctionItem.canceled;
+        } else {
+            return ic.err("Auction item not found");
+        }
+    }),
 });
